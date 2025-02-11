@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>مخطط الحملة الإعلانية</title>
+</head>
+<body dir="rtl">
+    <h1>مخطط الحملة الإعلانية</h1>
+    <form method="post" action="{{ url_for('campaign_plan') }}">
+        <label for="title">عنوان الحملة:</label>
+        <input type="text" name="title" id="title" required><br>
+
+        <label for="region">النطاق الجغرافي:</label>
+        <select name="region" id="region">
+            {% for region in regions %}
+                <option value="{{ region }}">{{ region }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="field">المجال:</label>
+        <input type="text" name="field" id="field"><br>
+
+        <label for="budget">ميزانية الحملة:</label>
+        <input type="number" name="budget" id="budget" step="0.01" required><br>
+
+        <label for="management_fee">رسوم إدارة (%):</label>
+        <input type="number" name="management_fee" id="management_fee" step="0.01" required><br>
+
+        <h2>الخدمات الإضافية</h2>
+        {% for service, price in optional_services.items() %}
+            <input type="checkbox" name="services" value="{{ service }}"> {{ service }} ({{ price }} ر.س)<br>
+        {% endfor %}
+
+        <h2>المنصات والمؤشرات</h2>
+        {% for platform in platforms %}
+            <h3>{{ platform }}</h3>
+            <input type="checkbox" name="platforms" value="{{ platform }}"> إضافة المنصة<br>
+            {% set indicators = pricing_table[pricing_table['القناة'] == platform]['المؤشر'].unique() %}
+            {% for indicator in indicators %}
+                <label>{{ indicator }}</label>
+                <input type="number" name="indicator_{{ platform }}_{{ indicator }}" placeholder="أدخل المستهدف"><br>
+            {% endfor %}
+        {% endfor %}
+
+        <input type="submit" value="توليد الخطة الإعلانية">
+    </form>
+</body>
+</html>

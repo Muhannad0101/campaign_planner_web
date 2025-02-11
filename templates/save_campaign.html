@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}حفظ الحملة{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>حفظ الحملة</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control", placeholder="أدخل عنوان الحملة") }}
+            {% for error in form.title.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+        <a href="{{ url_for('campaign_plan') }}" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>
+{% endblock %}

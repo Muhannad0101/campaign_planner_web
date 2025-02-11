@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}تفاصيل الحملة{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">تفاصيل الحملة الإعلانية</h1>
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        <!-- Title Field -->
+        <div class="mb-4">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control", placeholder="أدخل عنوان الحملة") }}
+            {% for error in form.title.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Region Field -->
+        <div class="mb-4">
+            {{ form.region.label(class="form-label") }}
+            {{ form.region(class="form-select") }}
+            {% for error in form.region.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Field Field -->
+        <div class="mb-4">
+            {{ form.field.label(class="form-label") }}
+            {{ form.field(class="form-control", placeholder="أدخل مجال الحملة") }}
+            {% for error in form.field.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Budget and Management Fee Fields -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                {{ form.budget.label(class="form-label") }}
+                {{ form.budget(class="form-control", placeholder="أدخل ميزانية الحملة") }}
+                {% for error in form.budget.errors %}
+                <div class="text-danger mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6 mb-4">
+                {{ form.management_fee.label(class="form-label") }}
+                {{ form.management_fee(class="form-control", placeholder="أدخل رسوم الإدارة (%)") }}
+                {% for error in form.management_fee.errors %}
+                <div class="text-danger mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- hr class="mb-4">
+        <h3 class="mb-3">التكاليف الإضافية (اختياري)</h3 -->
+
+        <!-- div class="mb-4">
+            {{ form.miscellaneous_cost.label(class="form-label") }}
+            {{ form.miscellaneous_cost(class="form-control", placeholder="أدخل قيمة التكاليف المتنوعة إذا وجدت") }}
+            <div class="form-text">هذا الحقل اختياري. أدخل أي تكاليف غير متوقعة أو غير مصنفة تحت الفئات الأخرى.</div>
+            {% for error in form.miscellaneous_cost.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-4">
+            {{ form.contingency_fund.label(class="form-label") }}
+            {{ form.contingency_fund(class="form-control", placeholder="أدخل قيمة صندوق الطوارئ إذا كنت ترغب في تخصيصه")
+            }}
+            <div class="form-text">هذا الحقل اختياري. استخدمه لتخصيص ميزانية للتعامل مع النفقات غير المتوقعة.</div>
+            {% for error in form.contingency_fund.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-4">
+            {{ form.platform_fees.label(class="form-label") }}
+            {{ form.platform_fees(class="form-control", placeholder="أدخل قيمة رسوم المنصات الإضافية إذا وجدت") }}
+            <div class="form-text">هذا الحقل اختياري. أدخل أي رسوم إضافية تفرضها المنصات المستخدمة في الحملة.</div>
+            {% for error in form.platform_fees.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="mb-4">
+            {{ form.advertising_fees.label(class="form-label") }}
+            {{ form.advertising_fees(class="form-control", placeholder="أدخل قيمة رسوم الإعلان الإضافية إذا وجدت") }}
+            <div class="form-text">هذا الحقل اختياري. أدخل رسوم شراء مساحة إعلانية إضافية أو خدمات تسويقية.</div>
+            {% for error in form.advertising_fees.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+            {% endfor %}
+        </div -->
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center mt-5">
+            <a href="{{ url_for('delete_campaign_details') }}" class="btn btn-custom-danger">حذف الحقول</a>
+            <div>
+                {% include 'back_button.html' %}
+                <button type="submit" class="btn btn-custom-success">حفظ التفاصيل والمتابعة</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

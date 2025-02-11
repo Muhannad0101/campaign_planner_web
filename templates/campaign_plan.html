@@ -1,0 +1,543 @@
+{% extends "base.html" %}
+{% block title %}خطة الحملة{% endblock %}
+
+{% block extra_head %}
+<script src="{{ url_for('static', filename='jsscripts/dist/Chart.min.js') }}"></script>
+<!-- Alternatively, use the CDN link if preferred -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script> -->
+
+{% endblock %}
+
+{% block content %}
+<h1>خطة الحملة</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        تفاصيل الحملة
+    </div>
+    <div class="card-body">
+        <p><strong>العنوان:</strong> {{ campaign_details.title }}</p>
+        <p><strong>المنطقة:</strong> {{ campaign_details.region }}</p>
+        <p><strong>المجال:</strong> {{ campaign_details.field }}</p>
+        <p><strong>ميزانية الحملة:</strong> {{ "{:,.0f}".format(budget_expected) }} ريال</p>
+        <p><strong>رسوم الإدارة:</strong> {{ "{:,.0f}".format(management_fees) }} ريال</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        الملخص المالي
+    </div>
+    <div class="card-body">
+        <p><strong>إجمالي التكلفة قبل الضريبة:</strong> {{ "{:,.0f}".format(total_cost_excl_tax) }} ريال</p>
+        <p><strong>ضريبة القيمة المضافة (15%):</strong> {{ "{:,.0f}".format(vat) }} ريال</p>
+        <p><strong>رسوم الإدارة:</strong> {{ "{:,.0f}".format(management_fees) }} ريال</p>
+        <p><strong>الإجمالي النهائي:</strong> {{ "{:,.0f}".format(grand_total) }} ريال</p>
+        <p>
+            <strong>الفائض:</strong>
+            <span class="{{ 'text-danger' if surplus < 0 else 'text-success' if surplus > 0 else '' }}">
+                {{ "{:,.0f}".format(surplus) }} ريال
+            </span>
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        تفاصيل التكاليف
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>البند</th>
+                    <th>الوصف</th>
+                    <th>المستهدف</th>
+                    <th>الوحدة</th>
+                    <th>العدد</th>
+                    <th>السعر الفردي</th>
+                    <th>السعر الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in campaign_items %}
+                <tr>
+                    <td>{{ item['البند'] }}</td>
+                    <td>{{ item['الوصف'] }}</td>
+                    <td>{{ item['المستهدف'] }}</td>
+                    <td>{{ item['الوحدة'] }}</td>
+                    <td>{{ item['العدد'] }}</td>
+                    <td>
+                        {% if item['السعر الفردي'] != 'لايوجد' %}
+                        {{item['السعر الفردي'] }} 
+                        {% else %}
+                        {{ item['السعر الفردي'] }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item['السعر الإجمالي'] != 'لايوجد' %}
+                        {{ "{:,.0f}".format(item['السعر الإجمالي']) }} 
+                        {% else %}
+                        {{ item['السعر الإجمالي'] }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- KPI and Statistical Data Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        البيانات الإحصائية ومؤشرات الأداء المستهدفة (Statistical Data and Target of KPIs)
+    </div>
+    <div class="card-body">
+        <!-- Existing KPI Table -->
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>المؤشر</th>
+                    <th>القيمة</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Reach Data Group -->
+                <tr class="table-secondary">
+                    <td colspan="2" class="text-center font-weight-bold">بيانات الوصول (Reach Data)</td>
+                </tr>
+                <tr>
+                    <td>إجمالي مرات الظهور</td>
+                    <td>
+                        {{ "{:,.0f}".format(kpi_data.get('إجمالي مرات الظهور', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>إجمالي المشاهدات</td>
+                    <td>
+                        {{ "{:,.0f}".format(kpi_data.get('إجمالي المشاهدات', 0)) }}
+                    </td>
+                </tr>
+
+                <!-- Engagement Data Group -->
+                <tr class="table-secondary">
+                    <td colspan="2" class="text-center font-weight-bold">بيانات التفاعل (Engagement Data)</td>
+                </tr>
+                <tr>
+                    <td>إجمالي النقرات</td>
+                    <td>
+                        {{ "{:,.0f}".format(kpi_data.get('إجمالي النقرات', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>إجمالي التفاعلات</td>
+                    <td>
+                        {{ "{:,.0f}".format(kpi_data.get('إجمالي التفاعلات', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>إجمالي تحميلات التطبيق</td>
+                    <td>
+                        {{ "{:,.0f}".format(kpi_data.get('إجمالي تحميلات التطبيق', 0)) }}
+                    </td>
+                </tr>
+
+                <!-- Performance Rates Group -->
+                <tr class="table-secondary">
+                    <td colspan="2" class="text-center font-weight-bold">نسب الأداء (Performance Rates)</td>
+                </tr>
+                <tr>
+                    <td>نسبة النقر إلى الظهور (CTR%)</td>
+                    <td>
+                        {{ "{:,.2f}%".format(kpi_data.get('نسبة النقر إلى الظهور (CTR%)', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>معدل التفاعل (Engagement Rate%)</td>
+                    <td>
+                        {{ "{:,.2f}%".format(kpi_data.get('معدل التفاعل (Engagement Rate%)', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>نسبة التحويل (CR%)</td>
+                    <td>
+                        {{ "{:,.2f}%".format(kpi_data.get('نسبة التحويل (CR%)', 0)) }}
+                    </td>
+                </tr>
+
+                <!-- Performance Costs Group -->
+                <tr class="table-secondary">
+                    <td colspan="2" class="text-center font-weight-bold">تكاليف الأداء (Performance Costs)</td>
+                </tr>
+                <tr>
+                    <td>تكلفة الألف ظهور (CPM)</td>
+                    <td>
+                        {{ "{:,.2f}".format(kpi_data.get('تكلفة الألف ظهور (CPM)', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>تكلفة النقرة (CPC)</td>
+                    <td>
+                        {{ "{:,.2f}".format(kpi_data.get('تكلفة النقرة (CPC)', 0)) }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>تكلفة الاكتساب (CPA)</td>
+                    <td>
+                        {{ "{:,.2f}".format(kpi_data.get('تكلفة الاكتساب (CPA)', 0)) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Existing Charts Section -->
+<div class="charts-section mb-4">
+    <!-- KPI Chart -->
+    <div class="chart-container">
+        <h3 class="text-center">مؤشرات الأداء الرئيسية المستهدفة</h3>
+        <canvas id="kpiChart"></canvas>
+    </div>
+
+    <!-- Performance Rates Chart -->
+    <div class="chart-container">
+        <h3 class="text-center">نسب الأداء المستهدفة</h3>
+        <canvas id="performanceRatesChart"></canvas>
+    </div>
+
+    <!-- Cost Breakdown Chart -->
+    <div class="chart-container">
+        <h3 class="text-center">توزيع التكاليف</h3>
+        <canvas id="costBreakdownChart"></canvas>
+    </div>
+
+    <!-- New Financial Summary Chart -->
+    <div class="chart-container">
+        <h3 class="text-center">الملخص المالي</h3>
+        <canvas id="financialSummaryChart"></canvas>
+    </div>
+</div>
+
+<!-- Next Button, Save Campaign Button, and Back Button -->
+<div class="row mt-4">
+    <div class="col text-center">
+        {% include 'back_button.html' %}
+        <!-- Download Campaign Plan as PDF Button -->
+        <a href="{{ url_for('download_campaign_plan') }}" class="btn btn-success mx-2">تحميل خطة الحملة كملف PDF</a>
+        <!-- Save Campaign Button -->
+        <a href="{{ url_for('save_campaign') }}" class="btn btn-success mx-2">حفظ الحملة</a>
+
+
+        <!-- Delete Campaign Plan and Return to Main Page Button -->
+        <a href="{{ url_for('delete_campaign_plan') }}" class="btn btn-danger mx-2">حذف خطة الحملة والعودة إلى الصفحة الرئيسية</a>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- JavaScript to render the charts -->
+{% block scripts %}
+<script>
+        async function renderCharts() {
+            try {
+                // Fetch KPI data
+                const kpiResponse = await fetch('/get_kpi_data', { credentials: 'include' });
+                const kpiData = await kpiResponse.json();
+
+                console.log('KPI Response Status:', kpiResponse.status);
+                console.log('KPI Data:', kpiData);
+
+                if (kpiResponse.status !== 200) {
+                    console.error('Error fetching KPI data:', kpiData.error);
+                    return;
+                }
+
+                // Fetch Cost data
+                const costResponse = await fetch('/get_cost_data', { credentials: 'include' });
+                const costData = await costResponse.json();
+
+                console.log('Cost Response Status:', costResponse.status);
+                console.log('Cost Data:', costData);
+
+                if (costResponse.status !== 200) {
+                    console.error('Error fetching cost data:', costData.error);
+                    return;
+                }
+
+                // Fetch Financial Summary data
+                const financialResponse = await fetch('/get_campaign_summary', { credentials: 'include' });
+                const financialData = await financialResponse.json();
+
+                console.log('Financial Response Status:', financialResponse.status);
+                console.log('Financial Data:', financialData);
+
+                if (financialResponse.status !== 200) {
+                    console.error('Error fetching financial data:', financialData.error);
+                    return;
+                }
+
+                // Prepare data for the KPI Chart
+                const numericLabels = [
+                    'إجمالي مرات الظهور',
+                    'إجمالي المشاهدات',
+                    'إجمالي النقرات',
+                    'إجمالي التفاعلات',
+                    'إجمالي تحميلات التطبيق'
+                ];
+                const numericData = [
+                    kpiData['إجمالي مرات الظهور'],
+                    kpiData['إجمالي المشاهدات'],
+                    kpiData['إجمالي النقرات'],
+                    kpiData['إجمالي التفاعلات'],
+                    kpiData['إجمالي تحميلات التطبيق']
+                ];
+
+                // Render KPI Chart
+                const ctxNumeric = document.getElementById('kpiChart').getContext('2d');
+                new Chart(ctxNumeric, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: numericLabels,
+                        datasets: [{
+                            label: 'القيم',
+                            data: numericData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return value.toLocaleString('ar-EG');
+                                    }
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (typeof context.parsed.x === 'number') {
+                                            label += context.parsed.x.toLocaleString('ar-EG');
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        locale: 'ar',
+                    }
+                });
+
+                // Prepare data for Performance Rates Chart
+                const rateLabels = [
+                    'نسبة النقر إلى الظهور (CTR%)',
+                    'معدل التفاعل (Engagement Rate%)',
+                    'نسبة التحويل (CR%)'
+                ];
+                const rateData = [
+                    kpiData['نسبة النقر إلى الظهور (CTR%)'],
+                    kpiData['معدل التفاعل (Engagement Rate%)'],
+                    kpiData['نسبة التحويل (CR%)']
+                ];
+
+                // Render Performance Rates Chart
+                const ctxRates = document.getElementById('performanceRatesChart').getContext('2d');
+                new Chart(ctxRates, {
+                    type: 'bar',
+                    data: {
+                        labels: rateLabels,
+                        datasets: [{
+                            label: 'النسبة المئوية',
+                            data: rateData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + '%';
+                                    }
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (typeof context.parsed.x === 'number') {
+                                            label += context.parsed.x.toFixed(2) + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        locale: 'ar',
+                    }
+                });
+
+                // Prepare data for Cost Breakdown Chart
+                const costLabels = Object.keys(costData);
+                const costValues = Object.values(costData);
+
+                // Render Cost Breakdown Chart
+                const ctxCost = document.getElementById('costBreakdownChart').getContext('2d');
+                new Chart(ctxCost, {
+                    type: 'doughnut',
+                    data: {
+                        labels: costLabels,
+                        datasets: [{
+                            data: costValues,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 205, 86, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(153, 102, 255, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(201, 203, 207, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 205, 86, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(201, 203, 207, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.label || '';
+                                        if (label) label += ': ';
+                                        if (typeof context.parsed === 'number') {
+                                            label += context.parsed.toLocaleString('ar-EG') + ' ريال';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        locale: 'ar',
+                    }
+                });
+
+                // Prepare data for Financial Summary Chart
+                const financialLabels = [
+                    'الميزانية المتوقعة',
+                    'إجمالي التكلفة قبل الضريبة',
+                    'ضريبة القيمة المضافة (VAT)',
+                    'رسوم الإدارة',
+                    'الإجمالي النهائي',
+                    'الفائض'
+                ];
+                const financialValues = [
+                    financialData.budget_expected,
+                    financialData.total_cost_excl_tax,
+                    financialData.vat,
+                    financialData.management_fees,
+                    financialData.grand_total,
+                    financialData.surplus
+                ];
+
+                // Render Financial Summary Chart
+                const ctxFinancial = document.getElementById('financialSummaryChart').getContext('2d');
+                new Chart(ctxFinancial, {
+                    type: 'bar',
+                    data: {
+                        labels: financialLabels,
+                        datasets: [{
+                            label: 'القيم المالية (ريال)',
+                            data: financialValues,
+                            backgroundColor: [
+                                'rgba(255, 159, 64, 0.6)',  // Budget Expected
+                                'rgba(54, 162, 235, 0.6)',   // Total Cost Excl Tax
+                                'rgba(75, 192, 192, 0.6)',   // VAT
+                                'rgba(153, 102, 255, 0.6)',  // Management Fees
+                                'rgba(255, 206, 86, 0.6)',   // Grand Total
+                                'rgba(255, 99, 132, 0.6)'    // Surplus
+                            ],
+                            borderColor: [
+                                'rgba(255, 159, 64, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(255, 99, 132, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return value.toLocaleString('ar-EG') + ' ريال';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (typeof context.parsed.y === 'number') {
+                                            label += context.parsed.y.toLocaleString('ar-EG') + ' ريال';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        locale: 'ar',
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderCharts);
+</script>
+{% endblock %}

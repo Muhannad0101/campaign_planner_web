@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}المنصات والمؤشرات{% endblock %}
+{% block content %}
+<h1>المنصات والمؤشرات</h1>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <!-- Platform Selection Form -->
+        <form method="post" id="platform-form" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="card p-4 shadow-sm border-0 mb-4">
+                <label for="platform_name" class="card-header bg-white border-bottom-0 pb-2">اختر منصة</label>
+                {{ form.platform_name(class="form-select", id="platform_name", required=True) }}
+                {% for error in form.platform_name.errors %}
+                <div class="card-body">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div id="indicators-container">
+                <!-- Indicators will be loaded here based on selected platform -->
+            </div>
+
+            <button type="submit" name="add_platform" class="btn btn-primary">إضافة منصة</button>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+
+        {% if added_platforms %}
+        <ul class="card mt-4 p-4 shadow-sm border-0" id="added-platforms-list">
+            <h3>المنصات المضافة</h3>
+            {% for platform in added_platforms %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>{{ platform.platform_name }}</strong>
+                    {% if platform.indicators %}
+                    <ul>
+                        {% for indicator, data in platform.indicators.items() %}
+                        <li>
+                            {{ indicator }}:
+                            {% if data.input_method == 'target' %}
+                            المستهدف = {{ data.value }}
+                            {% elif data.input_method == 'total_price' %}
+                            السعر الإجمالي = {{ data.value }}
+                            {% endif %}
+                            <br>
+                            الاجمالي النهائي = {{ data.final_total }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>لا توجد مؤشرات مضافة.</p>
+                    {% endif %}
+                </div>
+                <button class="btn btn-danger btn-sm remove-platform"
+                    data-platform="{{ platform.platform_name }}">إزالة</button>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>لم يتم إضافة أي منصات بعد.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col text-center">
+        {% include 'back_button.html' %}
+        <a href="{{ url_for('optional_services_route') }}" class="btn btn-success mx-2">التالي</a>
+    </div>
+</div>
+
+<script>
+    window.pricingTable = {{ pricing_table | tojson }};
+</script>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

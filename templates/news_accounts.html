@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}إضافة الحسابات الإخبارية{% endblock %}
+{% block content %}
+<h1 class="text-center mt-4 mb-4">إضافة الحسابات الإخبارية</h1>
+
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Left Column: Filters and Available News Accounts -->
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm border-0 mb-4">
+                <!-- Filters -->
+                <div class="card-header bg-white border-bottom-0 pb-2">
+                    <h4>فلترة الحسابات الإخبارية</h4>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{{ url_for('news_accounts') }}">
+                        <div class="row gy-3">
+                            <div class="col-md-6">
+                                <label for="region_filter" class="form-label">المنطقة</label>
+                                <select name="region_filter" id="region_filter" class="form-select">
+                                    <option value="all">الكل</option>
+                                    {% for region in regions %}
+                                    <option value="{{ region }}" {% if region==selected_region %}selected{% endif %}>
+                                        {{ region }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="platform_filter" class="form-label">المنصة</label>
+                                <select name="platform_filter" id="platform_filter" class="form-select">
+                                    <option value="all">الكل</option>
+                                    {% for platform in platforms %}
+                                    <option value="{{ platform }}" {% if platform==selected_platform %}selected{% endif
+                                        %}>
+                                        {{ platform }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4">تطبيق الفلاتر</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Available News Accounts (Card-Based Layout) -->
+            <div class="card p-4 shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pb-2">
+                    <h4>الحسابات الإخبارية المتاحة</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        {% for news_account in news_accounts %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <!-- News Account Image (Optional) -->
+                                <!-- Uncomment and update the image path if images are available
+                                <img src="{{ url_for('static', filename='images/news_accounts/' ~ news_account['identifier'] ~ '.jpg') }}"
+                                    class="card-img-top" alt="{{ news_account['identifier'] }}"
+                                    onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/news_accounts/default.jpg') }}';" -->
+
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ news_account['identifier'] }}</h5>
+                                    <p class="card-text">
+                                        <strong>المنصة:</strong> {{ news_account['platform'] }}<br>
+                                        <strong>عدد المتابعين:</strong> {{ news_account['followers'] }}<br>
+                                        <strong>المنطقة:</strong> {{ news_account['region'] }}<br>
+                                        <strong>المجال:</strong> {{ news_account['field'] }}
+                                    </p>
+                                    <div class="mt-auto">
+                                        <p class="card-text">
+                                            <strong>التغطية عن بعد (ر.س):</strong> {{ news_account['coverage_remote']
+                                            }}<br>
+                                            <strong>التغطية الحضورية (ر.س):</strong> {{
+                                            news_account['coverage_in_person'] }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal for Adding Coverage -->
+                        <div class="modal fade" id="addCoverageModal{{ loop.index }}" tabindex="-1"
+                            aria-labelledby="addCoverageModalLabel{{ loop.index }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form method="post">
+                                        {{ form.hidden_tag() }}
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addCoverageModalLabel{{ loop.index }}">إضافة
+                                                تغطية لـ {{ news_account['identifier'] }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="إغلاق"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="in_person_{{ loop.index }}" class="form-label">تغطية
+                                                    حضورية</label>
+                                                <input type="number" class="form-control"
+                                                    id="in_person_{{ loop.index }}" name="in_person_count" min="0"
+                                                    placeholder="أدخل عدد التغطيات الحضورية">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="remote_{{ loop.index }}" class="form-label">تغطية عن
+                                                    بعد</label>
+                                                <input type="number" class="form-control" id="remote_{{ loop.index }}"
+                                                    name="remote_count" min="0" placeholder="أدخل عدد التغطيات عن بعد">
+                                            </div>
+                                            <input type="hidden" name="name" value="{{ news_account['identifier'] }}">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">إلغاء</button>
+                                            <button type="submit" class="btn btn-primary">إضافة تغطية</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Add News Account Form and Added Accounts -->
+        <div class="col-lg-4">
+            <div class="card p-4 shadow-sm border-0 mb-4">
+                <!-- Form to Add News Account -->
+                <div class="card-header bg-white border-bottom-0 pb-2">
+                    <h4>إضافة حساب إخباري</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control", placeholder="اسم الحساب الاخباري", id='name') }}
+                            {% for error in form.name.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-check mb-3">
+                            {{ form.in_person(class="form-check-input", id='in_person') }}
+                            <label class="form-check-label" for="in_person">
+                                تغطية حضورية
+                            </label>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.in_person_count.label(class="form-label") }}
+                            {{ form.in_person_count(class="form-control", placeholder="أدخل عدد التغطيات الحضورية",
+                            id='in_person_count') }}
+                            {% for error in form.in_person_count.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-check mb-3">
+                            {{ form.remote(class="form-check-input", id='remote') }}
+                            <label class="form-check-label" for="remote">
+                                تغطية عن بعد
+                            </label>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.remote_count.label(class="form-label") }}
+                            {{ form.remote_count(class="form-control", placeholder="أدخل عدد التغطيات عن بعد",
+                            id='remote_count') }}
+                            {% for error in form.remote_count.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" id="add_news_accounts_button">{{
+                            form.submit.label.text }}</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Added News Accounts List -->
+            {% if added_news_accounts %}
+            <div class="card mt-4 p-4 shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0 pb-2">
+                    <h4>الحسابات المضافة</h4>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group">
+                        {% for news_account in added_news_accounts %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ news_account.name }}</strong><br>
+                                {{ news_account.coverage_type }} - عدد التغطيات: {{ news_account.coverage_count }}
+                            </div>
+                            <form method="post" style="display: inline;">
+                                {{ form.hidden_tag() }}
+                                <button type="submit" name="remove_news_account" value="{{ loop.index0 }}"
+                                    class="btn btn-danger btn-sm">إزالة</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Next Button and Back Button -->
+            <div class="row mt-4">
+                <div class="col text-center">
+                    {% include 'back_button.html' %}
+                    <!-- Next Button -->
+                    <a href="{{ url_for('campaign_plan') }}" class="btn btn-success mx-2">التالي</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Add News Account Button State -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const nameInput = document.getElementById('name');
+        const inPersonCheckbox = document.getElementById('in_person');
+        const remoteCheckbox = document.getElementById('remote');
+        const inPersonCountInput = document.getElementById('in_person_count');
+        const remoteCountInput = document.getElementById('remote_count');
+        const addButton = document.getElementById('add_news_accounts_button');
+
+        function updateButtonState() {
+            let enableButton = false;
+
+            // Check if name is entered
+            const nameEntered = nameInput.value.trim() !== '';
+
+            // Check coverage types and counts
+            const inPersonValid = inPersonCheckbox.checked && inPersonCountInput.value && parseInt(inPersonCountInput.value) > 0;
+            const remoteValid = remoteCheckbox.checked && remoteCountInput.value && parseInt(remoteCountInput.value) > 0;
+
+            // Enable button if name is entered and at least one coverage is valid
+            if (nameEntered && (inPersonValid || remoteValid)) {
+                enableButton = true;
+            }
+
+            addButton.disabled = !enableButton;
+        }
+
+        // Event listeners
+        nameInput.addEventListener('input', updateButtonState);
+        inPersonCheckbox.addEventListener('change', updateButtonState);
+        remoteCheckbox.addEventListener('change', updateButtonState);
+        inPersonCountInput.addEventListener('input', updateButtonState);
+        remoteCountInput.addEventListener('input', updateButtonState);
+
+        // Initial state
+        updateButtonState();
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}الحملات المحفوظة{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>الحملات المحفوظة</h2>
+    {% if campaigns %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>العنوان</th>
+                <th>تاريخ الحفظ</th>
+                <th>الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in campaigns %}
+            <tr>
+                <td>{{ campaign.title }}</td>
+                <td>{{ campaign.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>
+                    <a href="{{ url_for('load_campaign', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm">تحميل</a>
+                    <form action="{{ url_for('delete_saved_campaign', campaign_id=campaign.id) }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من حذف هذه الحملة؟');">حذف</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        لا توجد حملات محفوظة. <a href="{{ url_for('campaign_details') }}" class="alert-link">ابدأ حملة جديدة الآن!</a>
+    </div>
+    {% endif %}
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">العودة إلى الصفحة الرئيسية</a>
+</div>
+{% endblock %}

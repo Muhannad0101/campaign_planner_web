@@ -1,0 +1,25 @@
+
+{% extends 'admin/base_admin.html' %}
+{% block content %}
+<h2>{{ action }} {{ model_name }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {% for field in form %}
+    {% if field.type != 'CSRFToken' and field.type != 'SubmitField' %}
+    <div class="form-group mb-3">
+        {{ field.label(class="form-label") }}
+        {{ field(class="form-control" + (" is-invalid" if field.errors else "")) }}
+        {% for error in field.errors %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div class="d-flex justify-content-between">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for(list_endpoint) }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

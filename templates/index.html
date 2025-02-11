@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}الصفحة الرئيسية{% endblock %}
+{% block content %}
+<div class="text-center my-5 p-4 bg-light rounded shadow-sm">
+    <h1 class="display-5">مرحبًا بك في مخطِّط الحملة الإعلانية</h1>
+    <p class="lead mt-5 text-secondary">ابدأ بتسعير حملتك الإعلانية الآن!</p>
+    <a href="{{ url_for('campaign_details') }}" class="btn btn-primary mt-4">ابدأ الآن</a>
+</div>
+{% endblock %}

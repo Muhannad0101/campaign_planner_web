@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>خطة الحملة - PDF</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            direction: rtl;
+            text-align: right;
+            font-size: 14px;
+            margin: 20px;
+            color: #333;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #004085;
+        }
+
+        .card {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .card-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .card-body p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        /* KPI Table Styles */
+        .kpi-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .kpi-table th,
+        .kpi-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+        }
+
+        .kpi-table th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+
+        .group-header {
+            background-color: #e2e3e5;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Responsive Adjustments (if needed) */
+        @media (max-width: 768px) {
+
+            .kpi-table th,
+            .kpi-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .card-header {
+                font-size: 16px;
+            }
+
+            .card-body p {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>خطة الحملة</h1>
+
+    <!-- Campaign Details Section -->
+    <div class="card">
+        <div class="card-header">
+            تفاصيل الحملة
+        </div>
+        <div class="card-body">
+            <p><strong>العنوان:</strong> {{ campaign_details.title }}</p>
+            <p><strong>المنطقة:</strong> {{ campaign_details.region }}</p>
+            <p><strong>المجال:</strong> {{ campaign_details.field }}</p>
+            <p><strong>ميزانية الحملة:</strong> {{ "{:,.0f}".format(budget_expected) }} ريال</p>
+            <p><strong>رسوم الإدارة:</strong> {{ "{:,.0f}".format(management_fee_percentage) }}%</p>
+        </div>
+    </div>
+
+    <!-- Financial Summary Section -->
+    <div class="card">
+        <div class="card-header">
+            الملخص المالي
+        </div>
+        <div class="card-body">
+            <p><strong>إجمالي التكلفة قبل الضريبة:</strong> {{ "{:,.0f}".format(total_cost_excl_tax) }} ريال</p>
+            <p><strong>ضريبة القيمة المضافة (15%):</strong> {{ "{:,.0f}".format(vat) }} ريال</p>
+            <p><strong>رسوم الإدارة:</strong> {{ "{:,.0f}".format(management_fees) }} ريال</p>
+            <p><strong>الإجمالي النهائي:</strong> {{ "{:,.0f}".format(grand_total) }} ريال</p>
+            <p>
+                <strong>الفائض:</strong>
+                <span
+                    style="{{ 'color: red;' if surplus < 0 else 'color: green;' if surplus > 0 else 'color: black;' }}">
+                    {{ "{:,.0f}".format(surplus) }} ريال
+                </span>
+            </p>
+        </div>
+    </div>
+    
+
+    <!-- Campaign Items Section -->
+    <div class="card">
+        <div class="card-header">
+            تفاصيل التكاليف
+        </div>
+        <div class="card-body">
+            <table class="kpi-table">
+                <thead>
+                    <tr>
+                        <th>البند</th>
+                        <th>الوصف</th>
+                        <th>المستهدف</th>
+                        <th>الوحدة</th>
+                        <th>العدد</th>
+                        <th>السعر الفردي</th>
+                        <th>السعر الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in campaign_items %}
+                    <tr>
+                        <td>{{ item['البند'] }}</td>
+                        <td>{{ item['الوصف'] }}</td>
+                        <td>{{ item['المستهدف'] }}</td>
+                        <td>{{ item['الوحدة'] }}</td>
+                        <td>{{ item['العدد'] }}</td>
+                        <td>
+                            {% if item['السعر الفردي'] != 'لايوجد' %}
+                            {{ item['السعر الفردي'] }} 
+                            {% else %}
+                            {{ item['السعر الفردي'] }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item['السعر الإجمالي'] != 'لايوجد' %}
+                            {{ "{:,.0f}".format(item['السعر الإجمالي']) }} ريال
+                            {% else %}
+                            {{ item['السعر الإجمالي'] }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+     
+
+    <!-- KPI and Statistical Data Section -->
+    <h2>البيانات الإحصائية ومؤشرات الأداء المستهدفة (Statistical Data and Target of KPIs)</h2>
+    <table class="kpi-table">
+        <thead>
+            <tr>
+                <th>المؤشر</th>
+                <th>القيمة</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Reach Data Group -->
+            <tr class="group-header">
+                <td colspan="2">بيانات الوصول (Reach Data)</td>
+            </tr>
+            <tr>
+                <td>إجمالي مرات الظهور</td>
+                <td>{{ "{:,.0f}".format(kpi_data.get('إجمالي مرات الظهور', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>إجمالي المشاهدات</td>
+                <td>{{ "{:,.0f}".format(kpi_data.get('إجمالي المشاهدات', 0)) }}</td>
+            </tr>
+
+            <!-- Engagement Data Group -->
+            <tr class="group-header">
+                <td colspan="2">بيانات التفاعل (Engagement Data)</td>
+            </tr>
+            <tr>
+                <td>إجمالي النقرات</td>
+                <td>{{ "{:,.0f}".format(kpi_data.get('إجمالي النقرات', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>إجمالي التفاعلات</td>
+                <td>{{ "{:,.0f}".format(kpi_data.get('إجمالي التفاعلات', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>إجمالي تحميلات التطبيق</td>
+                <td>{{ "{:,.0f}".format(kpi_data.get('إجمالي تحميلات التطبيق', 0)) }}</td>
+            </tr>
+
+            <!-- Performance Rates Group -->
+            <tr class="group-header">
+                <td colspan="2">نسب الأداء (Performance Rates)</td>
+            </tr>
+            <tr>
+                <td>نسبة النقر إلى الظهور (CTR%)</td>
+                <td>{{ "{:,.2f}%".format(kpi_data.get('نسبة النقر إلى الظهور (CTR%)', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>معدل التفاعل (Engagement Rate%)</td>
+                <td>{{ "{:,.2f}%".format(kpi_data.get('معدل التفاعل (Engagement Rate%)', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>نسبة التحويل (CR%)</td>
+                <td>{{ "{:,.2f}%".format(kpi_data.get('نسبة التحويل (CR%)', 0)) }}</td>
+            </tr>
+
+            <!-- Performance Costs Group -->
+            <tr class="group-header">
+                <td colspan="2">تكاليف الأداء (Performance Costs)</td>
+            </tr>
+            <tr>
+                <td>تكلفة الألف ظهور (CPM)</td>
+                <td>{{ "{:,.2f}".format(kpi_data.get('تكلفة الألف ظهور (CPM)', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>تكلفة النقرة (CPC)</td>
+                <td>{{ "{:,.2f}".format(kpi_data.get('تكلفة النقرة (CPC)', 0)) }}</td>
+            </tr>
+            <tr>
+                <td>تكلفة الاكتساب (CPA)</td>
+                <td>{{ "{:,.2f}".format(kpi_data.get('تكلفة الاكتساب (CPA)', 0)) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+
+</html>

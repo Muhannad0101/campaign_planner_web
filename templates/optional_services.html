@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}الخدمات الإضافية{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">الخدمات الإضافية</h1>
+
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        {% for service, available in service_available.items() %}
+        <div class="card mb-4">
+            <div class="card-header">
+                {{ service }}
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    {% if available %}
+                    {{ form['service_' ~ service](class="form-check-input", id='service_' ~ service) }}
+                    <label class="form-check-label" for="{{ 'service_' ~ service }}">
+                        {{ service }} - {{ optional_services.get(service) }} ريال
+                    </label>
+                    {% else %}
+                    <!-- Disabled Checkbox for Unavailable Service -->
+                    <input type="checkbox" class="form-check-input" id="service_{{ service }}" disabled>
+                    <label class="form-check-label text-danger" for="{{ 'service_' ~ service }}">
+                        هذه الخدمة غير متوفره حالياً
+                    </label>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    {% if available %}
+                    <label for="{{ 'quantity_' ~ service }}" class="form-label">الكمية لـ "{{ service }}"</label>
+                    {{ form['quantity_' ~ service](class="form-control", placeholder="أدخل الكمية", id='quantity_' ~
+                    service) }}
+                    {% else %}
+                    <label for="{{ 'quantity_' ~ service }}" class="form-label text-danger">الكمية لـ "{{ service
+                        }}"</label>
+                    {{ form['quantity_' ~ service](class="form-control", placeholder="أدخل الكمية", id='quantity_' ~
+                    service, disabled=true) }}
+                    {% endif %}
+                    {% for error in form['quantity_' ~ service].errors %}
+                    <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+                    <a href="{{ url_for('delete_optional_services') }}" class="btn btn-danger mx-2">حذف الخدمات الإضافية</a>
+
+        <!-- Next Button and Back Button -->
+        <div class="row mt-4">
+            <div class="col text-center">
+                {% include 'back_button.html' %}
+                <button type="submit" class="btn btn-success mx-2">{{ form.submit.label.text }}</button>
+                        </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
