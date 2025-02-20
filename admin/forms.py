@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Length, NumberRange, Optional, Vali
 from models import AdditionalService, DigitalPricing, Influencer, NewsAccount
 
 class AdminLoginForm(FlaskForm):
-    username_or_email = StringField('Username or Email', validators=[DataRequired(), Length(min=3, max=120)])
+    username_or_email = StringField('Username', validators=[DataRequired(), Length(min=3, max=120)])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
